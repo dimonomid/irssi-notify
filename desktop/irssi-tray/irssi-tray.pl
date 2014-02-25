@@ -6,6 +6,7 @@ use Gtk2;
 use Gtk2::TrayIcon;
 use Proc::ProcessTable;
 use File::Basename;
+use File::Spec;
 
 
 # TRAYBLINKER  -  Create blinking tray icon, execute command on click
@@ -18,9 +19,15 @@ use File::Basename;
 #     and terminates with visual indication on SIGUSR1. Use this in the script
 #     that is called to automatically terminate the blinking tray icon.
 
+my $DIR   = dirname(File::Spec->rel2abs( __FILE__ ));
+ 
+my $cmd   = $DIR.'/irssi-tray-stop.sh';
+my $icon1 = $DIR.'/icons/blink1-12x12.xpm';
+my $icon2 = $DIR.'/icons/blink2-12x12.xpm';
+
 if (&already_running) {
    #print 'Already running, exiting.' if $ENV{'tty'};
-   print "Already running, exiting.\n";
+   print "Trayblinker is already running, exiting.\n";
    exit(0);
 }
 
@@ -38,10 +45,6 @@ sub already_running
 my $iconswitcher;
 my $blinktimer;
 my $countdown;
-
-my $cmd   = '/home/dimon/irssi-notify/irssi-tray-stop.sh';
-my $icon1 = '/home/dimon/irssi-notify/icons/blink1-12x12.xpm';
-my $icon2 = '/home/dimon/irssi-notify/icons/blink2-12x12.xpm';
 
 Gtk2->init;
 

@@ -1,5 +1,8 @@
-#! /bin/sh
+#!/bin/sh
 set -e
+
+# get path to this script
+DIR="$(dirname $(readlink -f "$0"))"
 
 # Based on:
 #   http://thorstenl.blogspot.com/2007/01/thls-irssi-notification-script.html
@@ -10,8 +13,6 @@ DEHILIGHT_KEYWORD="---dehighlight---"
 # TODO: make it modular: at least, need to add a function to "unnotify", 
 #       and probably there should be not functions but shell commands
 
-# TODO: reconnect if connection is broken
-
 notify()
 {
    local heading="$1"
@@ -21,10 +22,10 @@ notify()
    notify-send -i gtk-dialog-info -t 10000 -- "${heading}" "${message}"
 
    # play sound
-   play -q /home/dimon/irssi-notify/sounds/message.wav &
+   play -q $DIR/sounds/message.wav &
 
    # show tray blinking icon
-   /home/dimon/irssi-notify/irssi-tray.pl &
+   $DIR/irssi-tray/irssi-tray.pl &
 }
 
 remove_notification()
@@ -68,7 +69,7 @@ while true; do
          > $tmpfilename_part
 
       while read heading message; do
-         echo "existing unread message: ${heading} --- ${message}"
+         echo "existing unread message: ${heading} -> ${message}"
          notify "${heading}" "${message}"
       done < $tmpfilename_part
 
@@ -76,31 +77,7 @@ while true; do
       cur_linenum=$(($cur_linenum + 1))
    done
 
-   #linecnt=`wc -l $tmpfilename | awk '{print $1}'`
-   #while [ $linecnt -ge 1 ]
-   #do
-
-   #tmpfilename_part=`mktemp`
-   #cat $tmpfilename | \
-      #sed -n "$linecnt"p | \
-      #sed -u 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/\\/\\\\/g' \
-      #> $tmpfilename_part
-
-   #while read heading message; do
-   #if [ "${heading}" != "$DEHILIGHT_KEYWORD" ]; then
-   #echo "existing unread message: ${heading} --- ${message}"
-   #notify "${heading}" "${message}"
-   #else
-   #echo "no more unread messages"
-   #break 2
-   #fi
-   #done < $tmpfilename_part
-   #rm $tmpfilename_part
-   #linecnt=$(($linecnt - 1))
-   #done
-
    rm $tmpfilename
-
 
 
    # -----------------------------------------------------------------------------------
@@ -112,7 +89,7 @@ while true; do
       sed -u 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/\\/\\\\/g' | \
       while read heading message; do
          if [ "${heading}" != "$DEHILIGHT_KEYWORD" ]; then
-            echo "new message received: ${heading} --- ${message}"
+            echo "new message received: ${heading} -> ${message}"
             notify "${heading}" "${message}"
          else
             echo "messages were read; removing notifications"
