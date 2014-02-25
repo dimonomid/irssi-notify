@@ -15,22 +15,12 @@ DEHILIGHT_KEYWORD="---dehighlight---"
 
 notify()
 {
-   local heading="$1"
-   local message="$2"
-
-   # show notification via libnotify (for 10 seconds)
-   notify-send -i gtk-dialog-info -t 10000 -- "${heading}" "${message}"
-
-   # play sound
-   play -q $DIR/sounds/message.wav &
-
-   # show tray blinking icon
-   $DIR/irssi-tray/irssi-tray.pl &
+   /bin/bash $DIR/notification_on.sh -h "$1" -m "$2"
 }
 
 remove_notification()
 {
-   killall irssi-tray.pl &
+   /bin/bash $DIR/notification_off.sh
 }
 
 
