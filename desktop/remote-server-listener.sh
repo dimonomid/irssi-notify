@@ -7,6 +7,27 @@ DIR="$(dirname $(readlink -f "$0"))"
 # Based on:
 #   http://thorstenl.blogspot.com/2007/01/thls-irssi-notification-script.html
 
+# set default options {{{
+
+# file for storing list of currently plugged devices
+
+notification_on_command="/bin/bash $DIR/notification_on.sh"
+notification_off_command="/bin/bash $DIR/notification_off.sh"
+
+remote_notifylog_file_path="~/.irssi/notifylog"
+
+# }}}
+
+# read config file {{{
+#{
+   #if [ -r /etc/my-udev-notify.conf ]; then
+      #. /etc/my-udev-notify.conf
+   #fi
+   #if [ -r ~/.my-udev-notify.conf ]; then
+      #. ~/.my-udev-notify.conf
+   #fi
+#}
+# }}}
 
 DEHILIGHT_KEYWORD="---dehighlight---"
 
@@ -15,12 +36,12 @@ DEHILIGHT_KEYWORD="---dehighlight---"
 
 notify()
 {
-   /bin/bash $DIR/notification_on.sh -h "$1" -m "$2"
+   $notification_on_command -h "$1" -m "$2"
 }
 
 remove_notification()
 {
-   /bin/bash $DIR/notification_off.sh
+   $notification_off_command
 }
 
 
@@ -33,7 +54,7 @@ while true; do
    # First of all, let's retrieve existing unread messages
 
    tmpfilename=`mktemp`
-   ssh -n user@77.221.148.122 'tail -n 10 ~/.irssi/fnotify' > $tmpfilename
+   ssh -n user@77.221.148.122 "tail -n 10 $remote_notifylog_file_path" > $tmpfilename
 
    first_unread_linenum=`cat $tmpfilename | \
       awk \
@@ -75,7 +96,7 @@ while true; do
 
    echo "listening for new messages.."
 
-   ssh -o ServerAliveInterval=240 -n user@77.221.148.122 'tail -n 0 -f ~/.irssi/fnotify' | \
+   ssh -o ServerAliveInterval=240 -n user@77.221.148.122 "tail -n 0 -f $remote_notifylog_file_path" | \
       sed -u 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/\\/\\\\/g' | \
       while read heading message; do
          if [ "${heading}" != "$DEHILIGHT_KEYWORD" ]; then
