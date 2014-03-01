@@ -1,5 +1,4 @@
 #!/bin/sh
-set -e
 
 # get path to this script
 DIR="$(dirname $(readlink -f "$0"))"
@@ -108,7 +107,9 @@ while true; do
          fi
       done
 
-      echo "restarting listener.."
+      echo "restarting in 5 seconds.."
+      sleep 5
+      echo "restarting.."
    done
 
    echo "exiting."
